@@ -77,9 +77,9 @@ class DocumentGenerationService:
                     pdf.flatten_annotations()
                     pdf.save(str(pdf_path))
             except Exception as e:
-                self.logger.warning(f"Error al generar PDF baja_reiac: {str(e)}")
+                self.logger.warn(f"Error al generar PDF baja_reiac: {str(e)}")
         else:
-            self.logger.warning(f"Plantilla PDF no encontrada en {self.template_path_baja_reiac}")
+            self.logger.warn(f"Plantilla PDF no encontrada en {self.template_path_baja_reiac}")
             
         return str(folder_path)
 

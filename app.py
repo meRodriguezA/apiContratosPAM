@@ -47,7 +47,7 @@ if not os.path.exists(credentials_path):
         except Exception as e:
             logger.error(f"Error procesando GOOGLE_SERVICE_ACCOUNT_JSON: {str(e)}")
     else:
-        logger.warning(f"No se encontró archivo de credenciales en {credentials_path} ni variable GOOGLE_SERVICE_ACCOUNT_JSON")
+        logger.warn(f"No se encontró archivo de credenciales en {credentials_path} ni variable GOOGLE_SERVICE_ACCOUNT_JSON")
 
 installer = TemplateInstaller(paths)
 template_path_chip = installer.ensure_external_template()
