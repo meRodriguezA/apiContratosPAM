@@ -6,6 +6,7 @@ import shutil
 import os
 from datetime import datetime
 import json
+import base64
 from src.utils.logger import Logger
 from src.core.app_paths import AppPaths
 from src.core.template_manager_chip import TemplateInstaller
@@ -30,11 +31,21 @@ credentials_path = paths.get_credentials_json()
 if not os.path.exists(credentials_path):
     gcp_json_env = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
     if gcp_json_env:
-        os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
-        creds_data = json.loads(gcp_json_env)
-        with open(credentials_path, 'w') as f:
-            json.dump(creds_data, f)
-        logger.info(f"Archivo de credenciales creado desde variable de entorno")
+        try:
+            # Intentar decodificar si está en base64
+            try:
+                decoded = base64.b64decode(gcp_json_env).decode('utf-8')
+                creds_data = json.loads(decoded)
+            except:
+                # Si no es base64, asumir que es JSON directo
+                creds_data = json.loads(gcp_json_env)
+            
+            os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
+            with open(credentials_path, 'w') as f:
+                json.dump(creds_data, f)
+            logger.info(f"Archivo de credenciales creado desde variable de entorno")
+        except Exception as e:
+            logger.error(f"Error procesando GOOGLE_SERVICE_ACCOUNT_JSON: {str(e)}")
     else:
         logger.warning(f"No se encontró archivo de credenciales en {credentials_path} ni variable GOOGLE_SERVICE_ACCOUNT_JSON")
 
