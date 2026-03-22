@@ -4,20 +4,27 @@ Esta API permite generar documentos de manera automatizada a través de HTTP req
 
 ## Instalación y Ejecución
 
-### Opción 1: Ejecutar con Python
+### Opción 1: Ejecutar con Uvicorn
 ```bash
 cd "c:\Fuentes\PAM"
 .\.venv\Scripts\activate
-python api.py
+uvicorn app:app --host 0.0.0.0 --port 10000
 ```
 
-### Opción 2: Ejecutar el ejecutable
+### Opción 2: Ejecutar con Python
+```bash
+cd "c:\Fuentes\PAM"
+.\.venv\Scripts\activate
+python app.py
+```
+
+### Opción 3: Ejecutar el ejecutable
 ```bash
 cd "c:\Fuentes\PAM\dist"
 .\PAM_API.exe
 ```
 
-La API se ejecutará en `http://localhost:8000`
+La API se ejecutará en `http://localhost:10000`
 
 ## Endpoints
 
@@ -40,7 +47,7 @@ Genera un documento para el animal especificado.
 
 **Ejemplo:**
 ```bash
-curl -X POST http://localhost:8000/generate/animal/Lola
+curl -X POST http://localhost:8080/generate/animal/Lola
 ```
 
 **Respuesta exitosa:**
@@ -59,7 +66,7 @@ Genera un documento para la fila especificada en la hoja de cálculo.
 
 **Ejemplo:**
 ```bash
-curl -X POST http://localhost:8000/generate/row/5
+curl -X POST http://localhost:8080/generate/row/5
 ```
 
 **Respuesta exitosa:**
@@ -78,8 +85,8 @@ curl -X POST http://localhost:8000/generate/row/5
 ## Documentación Interactiva
 
 Cuando la API esté corriendo, puedes acceder a la documentación automática en:
-- `http://localhost:8000/docs` (Swagger UI)
-- `http://localhost:8000/redoc` (ReDoc)
+- `http://localhost:8080/docs` (Swagger UI)
+- `http://localhost:8080/redoc` (ReDoc)
 
 ## Notas
 

@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 a = Analysis(
-    ['api.py'],
+    ['app.py'],
     pathex=['.'],
     binaries=[],
     datas=[('src', 'src'), ('plantillas', 'plantillas'), ('conf', 'conf')],
