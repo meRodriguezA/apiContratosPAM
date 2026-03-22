@@ -24,6 +24,19 @@ class DocumentRequest(BaseModel):
 logger = Logger()
 paths = AppPaths()
 
+# Crear archivo de credenciales desde variable de entorno si no existe
+credentials_path = paths.get_credentials_json()
+if not os.path.exists(credentials_path):
+    gcp_json_env = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+    if gcp_json_env:
+        os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
+        creds_data = json.loads(gcp_json_env)
+        with open(credentials_path, 'w') as f:
+            json.dump(creds_data, f)
+        logger.info(f"Archivo de credenciales creado desde variable de entorno")
+    else:
+        logger.warning(f"No se encontró archivo de credenciales en {credentials_path} ni variable GOOGLE_SERVICE_ACCOUNT_JSON")
+
 installer = TemplateInstaller(paths)
 template_path_chip = installer.ensure_external_template()
 
