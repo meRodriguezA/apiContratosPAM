@@ -33,14 +33,16 @@ class SpreadsheetDataReader:
         animals_col = ws.col_values(2)
 
         search = normalize(animal_input)
-
+   
         for row_index, cell_value in enumerate(animals_col[2:], start=2):
-            if normalize(cell_value) == search:
-                row_values = ws.row_values(row_index)
+            normalized_cell = normalize(cell_value)
+            if normalized_cell == search:
+                row_values = ws.row_values(row_index+1)
                 context_word, context_excel = self._build_contexts(headers, row_values)
                 self._debug_print(context_excel)
                 return context_word, context_excel
 
+        print(f"[DEBUG] Animal '{animal_input}' no encontrado")
         raise ValueError(f"No se encontró el animal: {animal_input}")
 
     def get_context_by_sheet_row(self, spreadsheet_name: str, sheet_row_number: int):
