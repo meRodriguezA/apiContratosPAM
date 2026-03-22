@@ -50,7 +50,7 @@ generator = DocumentGenerationService(
 async def root():
     return {"message": "PAM Generador de Documentos API", "status": "running"}
 
-@app.post("/generate/animal/{animal_name}")
+@app.get("/generate/animal/{animal_name}")
 async def generate_by_animal(animal_name: str):
     try:
         logger.info(f"Generando documento para animal: {animal_name}")
@@ -69,7 +69,7 @@ async def generate_by_animal(animal_name: str):
         logger.error(f"Error generando documento: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno del servidor")
 
-@app.post("/generate/row/{row_number}")
+@app.get("/generate/row/{row_number}")
 async def generate_by_row(row_number: int):
     try:
         logger.info(f"Generando documento para fila: {row_number}")
