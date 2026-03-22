@@ -89,4 +89,5 @@ async def generate_by_row(row_number: int):
         raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 8000))  # 8000 como fallback local
+    uvicorn.run(app, host="0.0.0.0", port=port)
