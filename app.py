@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import uvicorn
 import shutil
 import os
+from datetime import datetime
 from src.utils.logger import Logger
 from src.core.app_paths import AppPaths
 from src.core.template_manager_chip import TemplateInstaller
@@ -56,7 +57,9 @@ async def generate_by_animal(animal_name: str):
         logger.info(f"Generando documento para animal: {animal_name}")
         folder_path = generator.generate_for_animal_name(SPREADSHEET_NAME, animal_name)
 
-        zip_path = shutil.make_archive(folder_path, 'zip', folder_path)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        zip_filename = f"{animal_name}_{timestamp}"
+        zip_path = shutil.make_archive(zip_filename, 'zip', folder_path)
 
         return FileResponse(
             path=zip_path,
@@ -75,7 +78,9 @@ async def generate_by_row(row_number: int):
         logger.info(f"Generando documento para fila: {row_number}")
         folder_path = generator.generate_for_sheet_row(SPREADSHEET_NAME, row_number)
 
-        zip_path = shutil.make_archive(folder_path, 'zip', folder_path)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        zip_filename = f"row_{row_number}_{timestamp}"
+        zip_path = shutil.make_archive(zip_filename, 'zip', folder_path)
 
         return FileResponse(
             path=zip_path,
