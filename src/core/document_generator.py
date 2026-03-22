@@ -9,6 +9,7 @@ from src.utils.field_validation_config import VALIDATION_RULES
 from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
 import pikepdf 
+import os 
 
 
 class DocumentGenerationService:
@@ -45,35 +46,40 @@ class DocumentGenerationService:
         renderer2 = DocxRenderer(self.template_path_contrato)
         renderer2.render(str(output_doc2), context_word)
         
-        #PDF baja Reiac
-        reader = PdfReader(self.template_path_baja_reiac)
-        writer = PdfWriter()
-        page = reader.pages[0]
-        fields = reader.get_fields()
+        #PDF baja Reiac - verificar si existe
+        if os.path.exists(self.template_path_baja_reiac):
+            try:
+                reader = PdfReader(self.template_path_baja_reiac)
+                writer = PdfWriter()
+                page = reader.pages[0]
+                fields = reader.get_fields()
 
+                writer.update_page_form_field_values(
+                    page,
+                    {
+                        "Cuadro de texto 1": context_word.get("microchip", ""),
+                        "Cuadro de texto 2": context_word.get("diaFirma", "") + "/" + context_word.get("mesFirma", "") + "/" + context_word.get("anyofirma", ""),
+                        "Cuadro de texto 3": "Protectora de Animales y Plantas de Montehermoso",
+                        "Cuadro de texto 4": "G02903870",
+                        "Cuadro de texto 5": context_word.get("nombreAdoptante", ""),
+                        "Cuadro de texto 6": context_word.get("dni", ""),
+                    },
+                )
 
-        writer.update_page_form_field_values(
-            page,
-            {
-                "Cuadro de texto 1": context_word.get("microchip", ""),
-                "Cuadro de texto 2": context_word.get("diaFirma", "") + "/" + context_word.get("mesFirma", "") + "/" + context_word.get("anyofirma", ""),
-                "Cuadro de texto 3": "Protectora de Animales y Plantas de Montehermoso",
-                "Cuadro de texto 4": "G02903870",
-                "Cuadro de texto 5": context_word.get("nombreAdoptante", ""),
-                "Cuadro de texto 6": context_word.get("dni", ""),
-            },
-        )
-
-        writer.add_page(page)
-        
-        pdf_path = folder_path / f"{animal_name}_baja_reiac.pdf"
-        with open(pdf_path, "wb") as f:
-            writer.write(f)
-        
-        # Aplanar el PDF
-        with pikepdf.open(str(pdf_path), allow_overwriting_input=True) as pdf:
-            pdf.flatten_annotations()
-            pdf.save(str(pdf_path))
+                writer.add_page(page)
+                
+                pdf_path = folder_path / f"{animal_name}_baja_reiac.pdf"
+                with open(pdf_path, "wb") as f:
+                    writer.write(f)
+                
+                # Aplanar el PDF
+                with pikepdf.open(str(pdf_path), allow_overwriting_input=True) as pdf:
+                    pdf.flatten_annotations()
+                    pdf.save(str(pdf_path))
+            except Exception as e:
+                self.logger.warning(f"Error al generar PDF baja_reiac: {str(e)}")
+        else:
+            self.logger.warning(f"Plantilla PDF no encontrada en {self.template_path_baja_reiac}")
             
         return str(folder_path)
 
