@@ -3,3 +3,4 @@ google-auth
 docxtpl
 fastapi
 uvicorn
+PyPDF2
