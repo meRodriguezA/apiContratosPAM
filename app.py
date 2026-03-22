@@ -5,6 +5,7 @@ import uvicorn
 import shutil
 import os
 from datetime import datetime
+import json
 from src.utils.logger import Logger
 from src.core.app_paths import AppPaths
 from src.core.template_manager_chip import TemplateInstaller
