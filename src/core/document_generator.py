@@ -85,9 +85,12 @@ class DocumentGenerationService:
                 with open(pdf_path, "wb") as f:
                     writer.write(f)
                 
-                # Aplanar las anotaciones (campos de formulario) para hacerlos no editables
+                # Eliminar manualmente las anotaciones de formulario para hacer los campos no editables
                 with pikepdf.open(str(pdf_path), allow_overwriting_input=True) as pdf:
-                    pdf.flatten_annotations()
+                    for page in pdf.pages:
+                        # Eliminar todas las anotaciones (campos de formulario)
+                        if '/Annots' in page:
+                            del page['/Annots']
                     pdf.save(str(pdf_path))
                 
                 self.logger.info(f"PDF generado exitosamente: {pdf_path}")
