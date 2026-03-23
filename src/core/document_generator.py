@@ -81,13 +81,10 @@ class DocumentGenerationService:
                 writer.add_page(page)
                 
                 pdf_path = folder_path / f"{animal_name}_baja_reiac.pdf"
+                # Escribir el PDF sin campos de formulario (aplanado)
                 with open(pdf_path, "wb") as f:
                     writer.write(f)
                 
-                # Aplanar el PDF
-                with pikepdf.open(str(pdf_path), allow_overwriting_input=True) as pdf:
-                    pdf.flatten_annotations()
-                    pdf.save(str(pdf_path))
                 self.logger.info(f"PDF generado exitosamente: {pdf_path}")
             except Exception as e:
                 self.logger.warn(f"Error al generar PDF baja_reiac: {str(e)}")
