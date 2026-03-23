@@ -49,10 +49,13 @@ class DocumentGenerationService:
         #PDF baja Reiac - verificar si existe
         if os.path.exists(self.template_path_baja_reiac):
             try:
+                self.logger.info(f"Intentando leer PDF: {self.template_path_baja_reiac}")
                 reader = PdfReader(self.template_path_baja_reiac)
+                self.logger.info(f"PDF leído exitosamente. Número de páginas: {len(reader.pages)}")
                 writer = PdfWriter()
                 page = reader.pages[0]
                 fields = reader.get_fields()
+                self.logger.info(f"Campos encontrados en el PDF: {list(fields.keys()) if fields else 'Ninguno'}")
 
                 writer.update_page_form_field_values(
                     page,
@@ -76,8 +79,12 @@ class DocumentGenerationService:
                 with pikepdf.open(str(pdf_path), allow_overwriting_input=True) as pdf:
                     pdf.flatten_annotations()
                     pdf.save(str(pdf_path))
+                self.logger.info(f"PDF generado exitosamente: {pdf_path}")
             except Exception as e:
                 self.logger.warn(f"Error al generar PDF baja_reiac: {str(e)}")
+                self.logger.warn(f"Tipo de error: {type(e).__name__}")
+                import traceback
+                self.logger.warn(f"Traceback: {traceback.format_exc()}")
         else:
             self.logger.warn(f"Plantilla PDF no encontrada en {self.template_path_baja_reiac}")
             
