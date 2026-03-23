@@ -46,12 +46,21 @@ class DocumentGenerationService:
         renderer2 = DocxRenderer(self.template_path_contrato)
         renderer2.render(str(output_doc2), context_word)
         
-        #PDF baja Reiac - verificar si existe
+        #PDF baja Reiac - verificar si existe y está válido
         if os.path.exists(self.template_path_baja_reiac):
             try:
                 self.logger.info(f"Intentando leer PDF: {self.template_path_baja_reiac}")
+                
+                # Verificar que el archivo no esté vacío
+                if os.path.getsize(self.template_path_baja_reiac) == 0:
+                    raise ValueError("El archivo PDF está vacío")
+                
                 reader = PdfReader(self.template_path_baja_reiac)
                 self.logger.info(f"PDF leído exitosamente. Número de páginas: {len(reader.pages)}")
+                
+                if len(reader.pages) == 0:
+                    raise ValueError("El PDF no tiene páginas")
+                    
                 writer = PdfWriter()
                 page = reader.pages[0]
                 fields = reader.get_fields()
@@ -83,8 +92,7 @@ class DocumentGenerationService:
             except Exception as e:
                 self.logger.warn(f"Error al generar PDF baja_reiac: {str(e)}")
                 self.logger.warn(f"Tipo de error: {type(e).__name__}")
-                import traceback
-                self.logger.warn(f"Traceback: {traceback.format_exc()}")
+                self.logger.warn("Continuando sin generar el PDF. Los documentos Word se generaron correctamente.")
         else:
             self.logger.warn(f"Plantilla PDF no encontrada en {self.template_path_baja_reiac}")
             
