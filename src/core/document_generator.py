@@ -1,4 +1,4 @@
-from csv import reader, writer, writer
+from csv import reader, writer
 
 from src.core.docx_renderer import DocxRenderer
 from src.core.output_paths import DocumentOutputBuilder
@@ -8,9 +8,9 @@ from src.utils.row_validator import SpreadsheetRowValidator
 from src.utils.field_validation_config import VALIDATION_RULES
 from datetime import datetime
 from PyPDF2 import PdfReader, PdfWriter
-import pikepdf 
-import os 
-
+import fitz  # PyMuPDF
+from src.config import SPREADSHEET_NAME
+import os
 
 class DocumentGenerationService:
     def __init__(self, paths, reader, template_path: str, template_path_contrato:str, template_path_baja_reiac:str, logger: Logger = None):
@@ -27,6 +27,9 @@ class DocumentGenerationService:
         errors = self.validator.validate(context_excel)
         if errors:
             raise ValueError("Errores de validación:\n- " + "\n- ".join(errors))
+
+    
+   
 
     def generate_from_context(self, animal_name: str, context_word: dict) -> str:
         # Crear carpeta con timestamp
@@ -69,27 +72,25 @@ class DocumentGenerationService:
                 writer.update_page_form_field_values(
                     page,
                     {
-                        "Cuadro de texto 1": context_word.get("microchip", ""),
-                        "Cuadro de texto 2": context_word.get("diaFirma", "") + "/" + context_word.get("mesFirma", "") + "/" + context_word.get("anyofirma", ""),
-                        "Cuadro de texto 3": "Protectora de Animales y Plantas de Montehermoso",
-                        "Cuadro de texto 4": "G02903870",
-                        "Cuadro de texto 5": context_word.get("nombreAdoptante", ""),
-                        "Cuadro de texto 6": context_word.get("dni", ""),
+                        "microchip": context_word.get("microchip", ""),
+                        "fecha": context_word.get("diaFirma", "") + "/" + context_word.get("mesFirma", "") + "/" + context_word.get("anyofirma", ""),
+                        "nombrePAM": "Protectora de Animales y Plantas de Montehermoso",
+                        "dniPAM": "G02903870",
+                        "nombreProp": context_word.get("nombreAdoptante", ""),
+                        "dniProp": context_word.get("dni", ""),
                     },
                 )
 
                 writer.add_page(page)
                 
                 pdf_path = folder_path / f"{animal_name}_baja_reiac.pdf"
+                pdf_path_o = folder_path / f"{animal_name}_baja_reiac_signed.pdf"
                 # Escribir el PDF con campos rellenados
                 with open(pdf_path, "wb") as f:
                     writer.write(f)
-                
-                # Aplanar las anotaciones para convertir campos editables en texto estático
-                with pikepdf.open(str(pdf_path), allow_overwriting_input=True) as pdf:
-                    pdf.flatten_annotations()
-                    pdf.save(str(pdf_path))
-                
+                    
+                # Uso
+                self.render_pdf(pdf_path, pdf_path_o)
                 self.logger.info(f"PDF generado exitosamente: {pdf_path}")
             except Exception as e:
                 self.logger.warn(f"Error al generar PDF baja_reiac: {str(e)}")
@@ -99,6 +100,24 @@ class DocumentGenerationService:
             self.logger.warn(f"Plantilla PDF no encontrada en {self.template_path_baja_reiac}")
             
         return str(folder_path)
+    
+    
+    def render_pdf(self, input_path, pdf_path_output):
+        doc = fitz.open(input_path)
+        new_doc = fitz.open()
+
+        for page in doc:
+            # Renderiza la página como imagen
+            pix = page.get_pixmap(dpi=300)  # Puedes ajustar el dpi según la calidad deseada
+            
+            # Crea una página nueva con el mismo tamaño
+            new_page = new_doc.new_page(
+                width=page.rect.width,
+                height=page.rect.height
+            )
+            # Inserta la imagen (esto lo deja completamente plano)
+            new_page.insert_image(page.rect, pixmap=pix)
+        new_doc.save(pdf_path_output)
 
     def generate_for_animal_name(self, spreadsheet_name: str, animal_input: str) -> str:
         context_word, context_excel = self.reader.get_context_by_animal(spreadsheet_name, animal_input)
