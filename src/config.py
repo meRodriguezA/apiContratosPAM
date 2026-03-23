@@ -12,7 +12,7 @@ SPREADSHEET_NAME = "2026_AnimalesCustodiadosPAM"
 OUTPUT_DIR_NAME = "Documentos Generados"
 
 TEMPLATES_DIR_NAME = "plantillas"                 # carpeta interna del proyecto / bundle
-TEMPLATES_EXTERNAL_DIR_NAME = "Plantillas"        # carpeta externa junto al exe
+TEMPLATES_EXTERNAL_DIR_NAME = "plantillas"        # carpeta externa junto al exe
 
 CONFIG_DIR_NAME = "conf"
 
